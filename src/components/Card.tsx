@@ -2,8 +2,14 @@ import { FC, useState, ChangeEvent } from "react"
 import { Link } from "react-router-dom";
 import { useStoreDispatch } from "../redux/store";
 
+interface IProps {
+    card: ICard,
+    changeCard: () => void,
+    deleteCard: () => void,
+    to: string
+}
 
-const Card:FC<IProps> = ({ card, changeCard, to }) => {
+const Card:FC<IProps> = ({ card, actionChangeCard, actionDeleteCard, to }) => {
     const dispatch = useStoreDispatch();
     const [currentTitle, setCurrentTitle] = useState(card.title);
     const [activeColor, setActiveColor] = useState(card.activeColor);
@@ -17,10 +23,14 @@ const Card:FC<IProps> = ({ card, changeCard, to }) => {
                 title: currentTitle,
                 activeColor: activeColor
             };
-            dispatch(changeCard(newCard))
+            dispatch(actionChangeCard(newCard))
 
             setShowEditor(false)
         }
+    }
+
+    const deleteCard = () => {
+        dispatch(actionDeleteCard(card.id))
     }
 
 
@@ -34,7 +44,7 @@ const Card:FC<IProps> = ({ card, changeCard, to }) => {
                             <h4 className='font-semibold'>Выберите цвет:</h4>
                             <ul className='grid grid-cols-4 w-24 h-24 gap-1 cursor-pointer'>
                                 {
-                                    card.aviableColors.map((color, index) => (
+                                    card.aviableColors.map((color: string, index: number) => (
                                         <li key={index} className={`${color} ${color === card.activeColor ? 'border-green-800' : ''} border-solid border border-white`} onClick={() => (setActiveColor(color))}></li>
                                     ))
                                 }
@@ -48,11 +58,10 @@ const Card:FC<IProps> = ({ card, changeCard, to }) => {
                             <button className='btn ml-auto inline-block bg-green-950' onClick={editorClose}>Готово</button>
                         </div>
                     </div>
-
                     :
                     <>
                         <div className="absolute z-10 top-3 right-3 flex items-center">
-                            <button type="button" className={`flex items-center mr-2 content-center rounded-md bg-red-600 p-1 shadow-sm`}>
+                            <button type="button" className={`flex items-center mr-2 content-center rounded-md bg-red-600 p-1 shadow-sm`} onClick={deleteCard}>
                                 <svg className='h-4 w-4 text-white-400' xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                 </svg>

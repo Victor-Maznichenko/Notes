@@ -1,0 +1,98 @@
+.ql-container {
+    min-height: 250px;
+}
+
+.ql-size,
+.ql-header,
+.ql-font {
+    border: 1px solid;
+}
+
+.ql-header .ql-picker-item::before {
+    content: "Текст" !important;
+}
+
+.ql-header .ql-picker-item[data-value]::before {
+    content: "Заголовок " attr(data-value) !important;
+}
+
+.ql-header .ql-picker-label::before {
+    content: "Текст" !important;
+}
+
+.ql-header .ql-picker-label[data-value]::before {
+    content: "Заголовок " attr(data-value) !important;
+}
+
+.ql-size .ql-picker-item[data-value]::before {
+    content: attr(data-value) !important;
+}
+
+.ql-size .ql-picker-label[data-value]::before {
+    content: attr(data-value) !important;
+}
+
+.ql-size .ql-picker-options,
+.ql-header .ql-picker-options,
+.ql-font .ql-picker-options {
+    border-radius: 0 0px 5px 5px;
+    max-height: 200px;
+    overflow-y: scroll;
+    color: #fff;
+    background: #333;
+}
+
+
+.ql-picker-options::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ql-picker-options::-webkit-scrollbar-thumb {
+    background: #999;
+    border-radius: 10px;
+}
+
+.ql-picker-options::-webkit-scrollbar-track {
+    border-left: 1px solid #474747;
+}
+
+.ql-picker.ql-font .ql-picker-item::before {
+    content: attr(data-value) !important;
+    font-family: attr(data-value) !important;
+}
+.ql-picker.ql-font .ql-picker-label::before {
+    content: attr(data-value) !important;
+    font-family: attr(data-value) !important;
+}
+
+.ql-font-Roboto{
+    font-family: 'Roboto';
+}
+
+.ql-font-PoiretOne{
+    font-family: 'Poiret One';
+}
+
+.ql-font-Chilanka{
+    font-family: 'JetBrains Mono';
+}
+
+.ql-font-PixelifySans{
+    font-family: 'Pixelify Sans';
+}
+
+.ql-font-Play{
+    font-family: 'Play';
+}
+
+.ql-font-AmaticSC{
+    font-family: 'Amatic SC';
+}
+
+.ql-font-UbuntuMono{
+    font-family: 'Ubuntu Mono';
+}
+
+.ql-font-AdventPro{
+    font-family: 'Advent Pro';
+}

@@ -4,19 +4,5 @@
 
 body {
   color: #fff;
-}
-
-.contentEditable{
-  height: 500px;
-  width: 100%;
-}
-
-.editor-textBold{
-  color: tomato;
-}
-
-h1,h2,h3,h4,h5,h6{
-  font-size: revert;
-  line-height: revert;
-  margin: revert;
+  position: relative;
 }

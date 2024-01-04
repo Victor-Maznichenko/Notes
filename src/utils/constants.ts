@@ -1,2 +1,2 @@
-export const BASE_URL = 'http://localhost:5001';
+export const BASE_URL = 'http://localhost:3005';
 export const AVIABLE_COLORS = ["bg-red-700", "bg-blue-700", "bg-orange-400", "bg-orange-700", "bg-amber-500", "bg-amber-950", "bg-slate-700", "bg-slate-900", "bg-lime-600", "bg-emerald-600", "bg-teal-600", "bg-sky-700", "bg-indigo-700", "bg-fuchsia-900", "bg-pink-800", "bg-pink-950"];

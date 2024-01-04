@@ -2,12 +2,16 @@ import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 import themes from './themes'
 import notes from './notes'
+import note from './note'
+// import user from './user'
 
 
 export const store = configureStore({
     reducer: {
         themes,
-        notes
+        notes,
+        note,
+        // user
     },
     devTools: true
 });
