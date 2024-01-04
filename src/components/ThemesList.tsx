@@ -1,25 +1,14 @@
-import { ITheme, addTheme, changeTheme, deleteTheme, getThemes } from "../redux/themes";
+import { ITheme, addTheme, getThemes } from "../redux/themes";
 import Card from "./Card"
 import { RootState, useStoreDispatch } from "../redux/store";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import RoundCard from "./RoundCard";
-import { AVIABLE_COLORS } from "../utils/constants";
 
 const ThemesList = () => {
     const dispatch = useStoreDispatch();
     const { list } = useSelector((state: RootState) => state.themes);
-    const newId = list.length + 1;
-    const createNewTheme = () => {
-        const newTheme = {
-            id: newId,
-            title: '',
-            aviableColors: AVIABLE_COLORS,
-            activeColor: AVIABLE_COLORS[0]
-        }
-        dispatch(addTheme(newTheme))
-    }
-
+    const createNewTheme = () => dispatch(addTheme());
 
     useEffect(() => {
         dispatch(getThemes());
@@ -32,7 +21,7 @@ const ThemesList = () => {
             <div className="flex flex-wrap items-center gap-5">
                 {
                     list.map((theme: ITheme, index) => (
-                        <Card card={theme} actionChangeCard={changeTheme} actionDeleteCard={deleteTheme} to={`/theme/${theme.id}`} key={index} />
+                        <Card card={theme} type={'theme'} to={`/theme/${theme.id}`} key={index} />
                     ))
                 }
                 <RoundCard onClick={createNewTheme}>

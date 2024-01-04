@@ -60,39 +60,77 @@
     content: attr(data-value) !important;
     font-family: attr(data-value) !important;
 }
+
 .ql-picker.ql-font .ql-picker-label::before {
     content: attr(data-value) !important;
     font-family: attr(data-value) !important;
 }
 
-.ql-font-Roboto{
+.ql-font-Roboto {
     font-family: 'Roboto';
 }
 
-.ql-font-PoiretOne{
+.ql-font-PoiretOne {
     font-family: 'Poiret One';
 }
 
-.ql-font-Chilanka{
+.ql-font-Chilanka {
     font-family: 'JetBrains Mono';
 }
 
-.ql-font-PixelifySans{
+.ql-font-PixelifySans {
     font-family: 'Pixelify Sans';
 }
 
-.ql-font-Play{
+.ql-font-Play {
     font-family: 'Play';
 }
 
-.ql-font-AmaticSC{
+.ql-font-AmaticSC {
     font-family: 'Amatic SC';
 }
 
-.ql-font-UbuntuMono{
+.ql-font-UbuntuMono {
     font-family: 'Ubuntu Mono';
 }
 
-.ql-font-AdventPro{
+.ql-font-AdventPro {
     font-family: 'Advent Pro';
+}
+
+.ql-snow .ql-editor h1{
+    margin: revert;
+}
+
+.ql-snow .ql-editor h2{
+    margin: revert;
+}
+
+.ql-snow .ql-editor h3{
+    margin: revert;
+}
+
+.ql-snow .ql-editor{
+    font-size: 16px;
+}
+
+.ql-snow .ql-editor h4{
+    margin: revert;
+}
+
+.ql-snow .ql-editor h5{
+    margin: revert;
+}
+
+.ql-snow .ql-editor h6{
+    margin: revert;
+}
+
+
+.ql-snow .ql-editor h2 {
+    font-size: 2em;
+}
+
+.ql-snow .ql-editor h3 {
+    font-size: 1.5em;
 }

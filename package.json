@@ -4,11 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "server": "json-server --watch server/db.json --port 3005 --delay 0",
+    "start": "concurrently \"vite\" \"npm run server\"",
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "server": "json-server --watch server/db.json --port 3005 --delay 0 --snapshots ./versions-db/"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.7",
@@ -26,6 +27,8 @@
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react-swc": "^3.3.2",
     "autoprefixer": "^10.4.16",
+    "chokidar": "^3.5.3",
+    "concurrently": "^8.2.2",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
@@ -37,7 +40,6 @@
     "react-router-dom": "^6.16.0",
     "tailwindcss": "^3.3.3",
     "ts-node": "^10.9.1",
-    "tw-elements-react": "^1.0.0-alpha1",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "webfontloader": "^1.6.28"

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BASE_URL } from '../utils/constants';
+import { AVIABLE_COLORS, BASE_URL } from '../utils/constants';
 import axios from 'axios';
+import { RootState } from './store';
 
 export interface ITheme {
     id: number,
@@ -34,23 +35,27 @@ export const getThemes = createAsyncThunk(
 
 export const changeTheme = createAsyncThunk(
     "changeTheme",
-    async (payload: ITheme, thunkAPI) => {
+    async (theme: ITheme, thunkAPI) => {
         try {
-            const res = await axios.put(`${BASE_URL}/themes/${payload.id}`, payload);
+            const res = await axios.put(`${BASE_URL}/themes/${theme.id}`, theme);
             return res.data;
-        } catch (err) {
-            console.log(err);
-            return thunkAPI.rejectWithValue(err);
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error);
         }
     }
 );
 
 
-export const addTheme = createAsyncThunk(
+export const addTheme = createAsyncThunk<ITheme, undefined, { state: RootState } >(
     "addTheme",
-    async (payload: ITheme, thunkAPI) => {
+    async (_, thunkAPI) => {
         try {
-            const res = await axios.post(`${BASE_URL}/themes/`, payload);
+            const newTheme = {
+                title: '',
+                aviableColors: AVIABLE_COLORS,
+                activeColor: AVIABLE_COLORS[0]
+            }
+            const res = await axios.post(`${BASE_URL}/themes/`, newTheme);
             return res.data;
         } catch (err) {
             console.log(err);
@@ -91,6 +96,7 @@ const themesSlice = createSlice({
             state.list.push(action.payload);
         });
         builder.addCase(deleteTheme.fulfilled, (state, action: PayloadAction<number>) => {
+            console.log(action)
             const index = state.list.findIndex(theme => theme.id === action.payload);
             state.list.splice(index, 1)
         });

@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { BASE_URL } from '../utils/constants';
 import axios from 'axios';
 import { INote } from './notes';

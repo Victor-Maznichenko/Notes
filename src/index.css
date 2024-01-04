@@ -6,3 +6,15 @@ body {
   color: #fff;
   position: relative;
 }
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: #999;
+  border-radius: 10px;
+}
+
+body::-webkit-scrollbar-track {
+  border-left: 1px solid #474747;
+}

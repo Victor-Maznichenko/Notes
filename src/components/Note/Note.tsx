@@ -15,6 +15,7 @@ const Note = () => {
     const FONT_FAMILIES = useMemo(() => ['Roboto', 'Poiret One', 'JetBrains Mono', 'Pixelify Sans', 'Play', 'Amatic SC', 'Ubuntu Mono', 'Advent Pro'], []);
     const FONT_FAMILIES_NO_SPACE = FONT_FAMILIES.map(font => font.replace(' ', ''));
     const note: INote = useSelector((state: RootState) => state.note);
+    
     const [showEditor, setShowEditor] = useState(false);
     const [textHTML, setTextHTML] = useState('');
     const dispatch = useStoreDispatch();
@@ -85,7 +86,7 @@ const Note = () => {
                         showEditor ?
                             <>
                                 <ReactQuill className="pt-6 text-start" modules={quilModules} theme='snow' value={textHTML} onChange={setTextHTML} />
-                                <button onClick={save} className="py-1 px-2 bg-teal-600 rounded mt-4">сохранить</button>
+                                <button onClick={save} className="py-1 px-2 bg-teal-600 rounded mt-4">Сохранить</button>
                             </>:
                             <div className="ql-snow">
                                 <div dangerouslySetInnerHTML={{ __html: textHTML }} className='note text-sm ql-editor'></div>
