@@ -11,27 +11,14 @@ export interface ITheme {
 }
 
 export interface IThemeState {
-    list: Array<ITheme>
+    list: Array<ITheme>,
+    isLoading: boolean
 }
 
 const initialState: IThemeState = {
-    list: []
+    list: [],
+    isLoading: true
 };
-
-export const getThemes = createAsyncThunk(
-    'getThemes',
-
-    async (_, thunkAPI) => {
-        try {
-            const res = await axios.get(`${BASE_URL}/themes`);
-            return res.data;
-        } catch (err) {
-            console.log(err);
-            return thunkAPI.rejectWithValue(err);
-        }
-    }
-);
-
 
 export const changeTheme = createAsyncThunk(
     "changeTheme",
@@ -46,7 +33,7 @@ export const changeTheme = createAsyncThunk(
 );
 
 
-export const addTheme = createAsyncThunk<ITheme, undefined, { state: RootState } >(
+export const addTheme = createAsyncThunk<ITheme, undefined, { state: RootState }>(
     "addTheme",
     async (_, thunkAPI) => {
         try {
@@ -82,11 +69,13 @@ export const deleteTheme = createAsyncThunk(
 const themesSlice = createSlice({
     name: 'themes',
     initialState,
-    reducers: {},
+    reducers: {
+        getThemes(state, { payload }) {
+            state.list = payload ?? [];
+            state.isLoading = false;
+        },
+    },
     extraReducers: (builder) => {
-        builder.addCase(getThemes.fulfilled, (state, action) => {
-            state.list = action.payload;
-        });
         builder.addCase(changeTheme.fulfilled, (state: IThemeState, action: PayloadAction<ITheme>) => {
             const currentTheme = state.list.find((theme: ITheme) => theme.id === action.payload.id);
             if (currentTheme !== undefined)
@@ -104,4 +93,5 @@ const themesSlice = createSlice({
 });
 
 
+export const { getThemes } = themesSlice.actions;
 export default themesSlice.reducer;

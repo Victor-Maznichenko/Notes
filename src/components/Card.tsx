@@ -53,7 +53,7 @@ const Card: FC<ICardProps> = ({ card, type, to }) => {
 
 
     return (
-        <div className={`hover:text-inherit text-inherit w-[25rem] rounded-2xl text-center ring-1 ring-inset px-3 py-3 h-52 relative ${activeColor}`}>
+        <div className={`hover:text-inherit text-inherit w-full md:w-[calc(100%/2-1rem)] xl:w-[25rem] rounded-2xl text-center ring-1 ring-inset px-3 py-3 h-44 md:h-52 relative ${activeColor}`}>
             {
                 showEditor ?
                     <div className="flex justify-between">
@@ -81,7 +81,7 @@ const Card: FC<ICardProps> = ({ card, type, to }) => {
                     :
                     <>
                         <Link to={to} className="peer flex w-full items-center h-full justify-center">
-                            <h3 className="font-mono text-2xl font-bold inline-block">{currentTitle}</h3>
+                            <h3 className="font-mono text-xl xl:text-2xl font-bold inline-block">{currentTitle}</h3>
                         </Link>
                         <div className="absolute z-10 top-3 right-3 flex items-center pointer-events-none opacity-0 peer-hover:pointer-events-auto peer-hover:opacity-100 transition-all hover:pointer-events-auto hover:opacity-100">
                             <button type="button" className={`flex items-center mr-2 content-center rounded-md bg-red-600 p-1 shadow-sm`} onClick={deleteCard}>

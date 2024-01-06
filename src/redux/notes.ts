@@ -16,27 +16,13 @@ export interface INote {
 
 export interface INoteState {
     list: Array<INote>,
-    saved: boolean
+    isLoading: boolean
 }
 
 const initialState: INoteState = {
     list: [],
-    saved: false
+    isLoading: true
 };
-
-export const getNotes = createAsyncThunk(
-    'getNotes',
-
-    async (id: number, thunkAPI) => {
-        try {
-            const res = await axios.get(`${BASE_URL}/notes?themesId=${id}`);
-            return res.data;
-        } catch (error) {
-            return thunkAPI.rejectWithValue(error);
-        }
-    }
-);
-
 
 export const deleteNote = createAsyncThunk(
     "deleteNote",
@@ -88,19 +74,19 @@ const notesSlice = createSlice({
     name: 'notes',
     initialState,
     reducers: {
-        setUnsaved: state => {
-            state.saved = false
-        }
+        getNotes(state, { payload }) {
+            state.list = payload ?? [];
+            state.isLoading = false;
+        },
+        filterNotes(state, { payload }) {
+            state.list = state.list.filter(note => note.themeId === payload);
+        },
     },
     extraReducers: (builder) => {
-        builder.addCase(getNotes.fulfilled, (state, action) => {
-            state.list = action.payload;
-        });
         builder.addCase(changeNote.fulfilled, (state: INoteState, action: PayloadAction<INote>) => {
             const currentNote = state.list.find((Note: INote) => Note.id === action.payload.id);
             if (currentNote !== undefined)
                 currentNote.activeColor = action.payload.activeColor;
-            state.saved = true
         });
         builder.addCase(addNote.fulfilled, (state: INoteState, action: PayloadAction<INote>) => {
             state.list.push(action.payload);
@@ -113,5 +99,5 @@ const notesSlice = createSlice({
 });
 
 
+export const { getNotes, filterNotes } = notesSlice.actions;
 export default notesSlice.reducer;
-export const { setUnsaved } = notesSlice.actions;

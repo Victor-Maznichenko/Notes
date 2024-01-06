@@ -5,6 +5,7 @@ import { store } from './redux/store.tsx';
 import { CookiesProvider } from 'react-cookie';
 
 import App from './App.tsx'
+import './firebase.ts'
 import './index.css'
 
 

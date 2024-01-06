@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import themes from './themes'
 import notes from './notes'
 import note from './note'
-// import user from './user'
+import user from './user'
 
 
 export const store = configureStore({
@@ -11,7 +11,7 @@ export const store = configureStore({
         themes,
         notes,
         note,
-        // user
+        user
     },
     devTools: true
 });

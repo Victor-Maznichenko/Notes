@@ -81,7 +81,7 @@ const Note = () => {
         <section className="pt-10">
             <div className="flex justify-between gap-8 relative">
                 <div className={`w-full overflow-hidden`}>
-                    <h1 className='font-mono font-black text-4xl text-center mb-6'>{note.title}:</h1>
+                    <h1 className='font-mono font-black text-2xl sm:text-4xl text-center mb-6'>{note.title}:</h1>
                     {
                         showEditor ?
                             <>
