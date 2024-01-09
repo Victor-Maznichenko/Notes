@@ -35,7 +35,7 @@ function App() {
   }, [dispatch, navigate]);
 
   return (
-    <div className='container xl:max-w-7xl mx-auto px-3 min-h-screen relative pb-10 max-lg:text-sm'>
+    <div className='container xl:max-w-7xl overflow-x-hidden mx-auto px-3 min-h-screen relative pb-10 max-lg:text-sm'>
       {
         isLoading ? <h1 className='font-mono font-black text-4xl pt-4 mb-36'>Загрузка...</h1> :
           <>
