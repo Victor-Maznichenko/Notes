@@ -47,7 +47,6 @@ function App() {
               <Route path='/login' element={<Login />} />
             </Routes>
             <p className='absolute bottom-0 left-0 w-full text-center'>Develop by <a className='text-amber-600' href="https://github.com/Victor-Maznichenko">Victor Maznichenko</a></p>
-
           </>
       }
     </div>
