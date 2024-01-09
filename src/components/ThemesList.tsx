@@ -1,31 +1,20 @@
-import { ITheme } from "../redux/themes";
-import Card from "./Card"
-import { RootState } from "../redux/store";
+import { ITheme, addTheme, getThemes } from "../redux/themes";
+import { RootState, useStoreDispatch } from "../redux/store";
 import { useSelector } from "react-redux";
-import RoundCard from "./RoundCard";
 import { useEffect } from "react";
-import { useGetThemes } from "../hooks/useGetThemes";
+
+import RoundCard from "./RoundCard";
+import Card from "./Card"
 
 const ThemesList = () => {
-    const { uid } = useSelector((state: RootState) => state.user);
+    const dispatch = useStoreDispatch();
+    const { user: { uid } } = useSelector((state: RootState) => state.user);
     const themes = useSelector((state: RootState) => state.themes);
-    const createNewTheme = () => console.log;
-    const getThemesData = useGetThemes();
+    const createNewTheme = () => dispatch(addTheme(uid));
 
     useEffect(() => {
-        getThemesData(uid);
-    }, [getThemesData, uid]);
-    
-
-    // function writeThemeData(userId, name, email, imageUrl) {
-    //     const db = getDatabase();
-    //     set(ref(db, 'users/' + userId), {
-    //         username: name,
-    //         email: email,
-    //         profile_picture: imageUrl
-    //     });
-    // }
-
+        dispatch(getThemes(uid))
+    }, [dispatch, uid]);
 
 
     return (
@@ -34,7 +23,7 @@ const ThemesList = () => {
             <div className="flex flex-wrap items-center xl:gap-5 md:gap-[2rem] gap-4 max-xl:justify-between">
                 {
                     themes.list.map((theme: ITheme, index) => (
-                        <Card card={theme} type={'theme'} to={`/theme/${theme.id}`} key={index} />
+                        <Card card={theme} key={index} />
                     ))
                 }
                 <RoundCard onClick={createNewTheme}>

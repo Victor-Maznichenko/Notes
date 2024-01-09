@@ -1,25 +1,22 @@
-import { useDispatch, useSelector } from "react-redux"
-import { RootState } from "../redux/store";
-import RoundCard from "./RoundCard"
-import { INote, filterNotes } from "../redux/notes";
-import Card from "./Card";
-import { useParams } from "react-router-dom";
 import { useEffect } from "react";
-import { useGetNotes } from "../hooks/useGetNotes";
+import { useSelector } from "react-redux"
+import { useParams } from "react-router-dom";
+import { INote, addNote, getNotes } from "../redux/notes";
+import { RootState, useStoreDispatch } from "../redux/store";
+
+import Card from "./Card";
+import RoundCard from "./RoundCard"
 
 const NotesList = () => {
-    const { themeId } = useParams();
-    const dispatch = useDispatch();
-    const getNotesData = useGetNotes();
+    const themeID = useParams().themeID ?? '';
+    const dispatch = useStoreDispatch();
     const notes = useSelector((state: RootState) => state.notes);
-    const { uid } = useSelector((state: RootState) => state.user);
-    const createNewNote = () => console.log('add Note');
+    const { user: {uid} } = useSelector((state: RootState) => state.user);
+    const createNewNote = () => dispatch(addNote({ uid, themeID }));
 
     useEffect(() => {
-        getNotesData(uid);
-        dispatch(filterNotes(Number(themeId)));
-    }, [dispatch, getNotesData, themeId, uid]);
-
+        dispatch(getNotes({ uid, themeID }))
+    }, [dispatch, themeID, uid]);
 
     return (
         <>
@@ -30,7 +27,7 @@ const NotesList = () => {
                         'СКИЛЕТОН'
                         :
                         notes.list.map((note: INote, i) => (
-                            <Card card={note} type={'note'} to={`/note/${note.id}`} key={i} />
+                            <Card card={note} themeID={themeID} key={i} />
                         ))
                 }
                 <RoundCard onClick={createNewNote}>

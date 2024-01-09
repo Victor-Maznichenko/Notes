@@ -1,25 +1,23 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import ReactQuill, { Quill } from "react-quill";
 import { useSelector } from "react-redux";
-import { RootState, useStoreDispatch } from "../../redux/store";
 import { useParams } from "react-router-dom";
+import ReactQuill, { Quill } from "react-quill";
 import { changeNote, getNote } from "../../redux/note";
-import { INote } from "../../redux/notes";
-import WebFont from 'webfontloader';
+import { RootState, useStoreDispatch } from "../../redux/store";
+import { useCallback, useEffect, useState } from "react";
 
+import { FONT_FAMILIES, FONT_FAMILIES_NO_SPACE, FONT_SIZES, QUIL_MODULES } from "../../utils/constants";
+import WebFont from 'webfontloader';
 import 'react-quill/dist/quill.snow.css'
 import './Note.css';
 
 const Note = () => {
-    const FONT_SIZES = ['8px', '9px', '10px', '12px', '14px', '16px', '20px', '24px', '32px', '42px', '54px', '68px', '84px', '98px'];
-    const FONT_FAMILIES = useMemo(() => ['Roboto', 'Poiret One', 'JetBrains Mono', 'Pixelify Sans', 'Play', 'Amatic SC', 'Ubuntu Mono', 'Advent Pro'], []);
-    const FONT_FAMILIES_NO_SPACE = FONT_FAMILIES.map(font => font.replace(' ', ''));
-    const note: INote = useSelector((state: RootState) => state.note);
-    
+    const note = useSelector((state: RootState) => state.note);
+    const { user: {uid} } = useSelector((state: RootState) => state.user);
+    const dispatch = useStoreDispatch();
+    const noteID = useParams().id ?? '';
+    const themeID = useParams().themeID ?? '';
     const [showEditor, setShowEditor] = useState(false);
     const [textHTML, setTextHTML] = useState('');
-    const dispatch = useStoreDispatch();
-    const { id } = useParams();
 
     const Font = Quill.import('formats/font');
     const Size = Quill.import('attributors/style/size');
@@ -34,22 +32,23 @@ const Note = () => {
                 ...note,
                 textHTML
             }
-            dispatch(changeNote(newNote))
+            dispatch(changeNote({ uid, themeID, newNote }));
         },
-        [dispatch, note, textHTML],
+        [dispatch, note, textHTML, themeID, uid],
     )
 
     useEffect(() => {
-        dispatch(getNote(Number(id)));
+        dispatch(getNote({ uid, themeID, noteID }));
         setTextHTML(note.textHTML);
         WebFont.load({
             google: {
                 families: FONT_FAMILIES
             }
         });
-    }, [dispatch, FONT_FAMILIES, id, note.textHTML]);
+    }, [dispatch, note.textHTML, noteID, themeID, uid]);
 
-/*     useEffect(() => {
+
+    useEffect(() => {
         window.addEventListener('keydown', function (event) {
             if (event.code == 'KeyS' && (event.ctrlKey || event.metaKey)) {
                 event.preventDefault();
@@ -59,35 +58,20 @@ const Note = () => {
         window.addEventListener('unload', function () {
             save();
         });
-    }, [note, save]); */
+    }, [note, save]);
 
-    const quilModules = {
-        toolbar: [
-            [{ 'font': FONT_FAMILIES_NO_SPACE }],
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            [{ 'size': FONT_SIZES }],
-            ['bold', 'italic', 'underline', 'strike'],
-            ['blockquote', 'code-block'],
-            [{ 'color': [] }, { 'background': [] }],
-            [{ 'align': [] }],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'script': 'sub' }, { 'script': 'super' }],
-            ["link", "image", "video"],
-            ['clean']
-        ]
-    }
 
     return (
-        <section className="pt-10">
+        <section className="pt-24">
             <div className="flex justify-between gap-8 relative">
                 <div className={`w-full overflow-hidden`}>
                     <h1 className='font-mono font-black text-2xl sm:text-4xl text-center mb-6'>{note.title}:</h1>
                     {
                         showEditor ?
                             <>
-                                <ReactQuill className="pt-6 text-start" modules={quilModules} theme='snow' value={textHTML} onChange={setTextHTML} />
+                                <ReactQuill className="pt-6 text-start" modules={QUIL_MODULES} theme='snow' value={textHTML} onChange={setTextHTML} />
                                 <button onClick={save} className="py-1 px-2 bg-teal-600 rounded mt-4">Сохранить</button>
-                            </>:
+                            </> :
                             <div className="ql-snow">
                                 <div dangerouslySetInnerHTML={{ __html: textHTML }} className='note text-sm ql-editor'></div>
                             </div>

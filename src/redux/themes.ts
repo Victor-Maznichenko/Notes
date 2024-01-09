@@ -1,10 +1,8 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AVIABLE_COLORS, BASE_URL } from '../utils/constants';
-import axios from 'axios';
-import { RootState } from './store';
-
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { child, get, getDatabase, push, ref, remove, update } from 'firebase/database';
+import { AVIABLE_COLORS } from '../utils/constants';
 export interface ITheme {
-    id: number,
+    id: string,
     title: string,
     aviableColors: Array<string>,
     activeColor: string
@@ -20,48 +18,65 @@ const initialState: IThemeState = {
     isLoading: true
 };
 
-export const changeTheme = createAsyncThunk(
-    "changeTheme",
-    async (theme: ITheme, thunkAPI) => {
-        try {
-            const res = await axios.put(`${BASE_URL}/themes/${theme.id}`, theme);
-            return res.data;
-        } catch (error) {
-            return thunkAPI.rejectWithValue(error);
-        }
-    }
-);
+export const getThemes = createAsyncThunk(
+    'themes/getThemes',
 
-
-export const addTheme = createAsyncThunk<ITheme, undefined, { state: RootState }>(
-    "addTheme",
-    async (_, thunkAPI) => {
-        try {
-            const newTheme = {
-                title: '',
-                aviableColors: AVIABLE_COLORS,
-                activeColor: AVIABLE_COLORS[0]
+    async (uid: string) => {
+        const db = getDatabase();
+        const dbRef = ref(db, `user-themes/${uid}`);
+        const result = await get(dbRef).then((snapshot: { val: () => { [s: string]: ITheme; }, exists: () => boolean }) => {
+            if (snapshot.exists()) {
+                return Object.values(snapshot.val());
             }
-            const res = await axios.post(`${BASE_URL}/themes/`, newTheme);
-            return res.data;
-        } catch (err) {
-            console.log(err);
-            return thunkAPI.rejectWithValue(err);
-        }
+        }).catch((error) => {
+            console.error(error);
+        });
+
+        return result ?? [];
     }
 );
 
+export const addTheme = createAsyncThunk(
+    'themes/addTheme',
+
+    async (uid: string) => {
+        const db = getDatabase();
+        const id = push(child(ref(db), `user-themes/${uid}`)).key ?? '';
+        const newTheme = {
+            id,
+            title: '',
+            aviableColors: AVIABLE_COLORS,
+            activeColor: AVIABLE_COLORS[0]
+        }
+        const updates = { [`user-themes/${uid}/${id}`]: newTheme };
+
+        await update(ref(db), updates);
+        return newTheme;
+    }
+);
+
+export const changeTheme = createAsyncThunk(
+    'themes/changeTheme',
+
+    async ({ uid, newTheme }: { uid: string, newTheme: ITheme }) => {
+        const db = getDatabase();
+        const updates = { [`user-themes/${uid}/${newTheme.id}`]: newTheme };
+
+        await update(ref(db), updates);
+        return newTheme;
+    }
+);
 
 export const deleteTheme = createAsyncThunk(
-    "deleteTheme",
-    async (id: number, thunkAPI) => {
-        try {
-            const res = await axios.delete(`${BASE_URL}/themes/${id}`);
-            return res.data;
-        } catch (err) {
-            console.log(err);
-            return thunkAPI.rejectWithValue(err);
-        }
+    'themes/deleteTheme',
+
+    async ({ uid, themeID }: { uid: string, themeID: string }) => {
+        const db = getDatabase();
+        const dbRefTheme = ref(db, `user-themes/${uid}/${themeID}`);
+        const dbRefNotes = ref(db, `user-notes/${uid}/${themeID}`);
+        await remove(dbRefTheme);
+        await remove(dbRefNotes);
+        return themeID;
     }
 );
 
@@ -69,29 +84,27 @@ export const deleteTheme = createAsyncThunk(
 const themesSlice = createSlice({
     name: 'themes',
     initialState,
-    reducers: {
-        getThemes(state, { payload }) {
-            state.list = payload ?? [];
-            state.isLoading = false;
-        },
-    },
+    reducers: {},
     extraReducers: (builder) => {
-        builder.addCase(changeTheme.fulfilled, (state: IThemeState, action: PayloadAction<ITheme>) => {
-            const currentTheme = state.list.find((theme: ITheme) => theme.id === action.payload.id);
-            if (currentTheme !== undefined)
-                currentTheme.activeColor = action.payload.activeColor;
-        });
-        builder.addCase(addTheme.fulfilled, (state: IThemeState, action: PayloadAction<ITheme>) => {
-            state.list.push(action.payload);
-        });
-        builder.addCase(deleteTheme.fulfilled, (state, action: PayloadAction<number>) => {
-            console.log(action)
-            const index = state.list.findIndex(theme => theme.id === action.payload);
-            state.list.splice(index, 1)
-        });
+        builder
+            .addCase(getThemes.fulfilled, (state, { payload }) => {
+                state.list = payload;
+                state.isLoading = false;
+            })
+            .addCase(addTheme.fulfilled, (state, { payload }) => {
+                state.list.push(payload);
+            })
+            .addCase(changeTheme.fulfilled, (state, { payload }) => {
+                const currentTheme = state.list.find(theme => theme.id === payload.id);
+                if (currentTheme)
+                    currentTheme.activeColor = payload.activeColor;
+            })
+            .addCase(deleteTheme.fulfilled, (state, { payload }) => {
+                const index = state.list.findIndex(theme => theme.id === payload);
+                state.list.splice(index, 1)
+            });
     },
 });
 
 
-export const { getThemes } = themesSlice.actions;
 export default themesSlice.reducer;

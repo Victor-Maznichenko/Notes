@@ -1,13 +1,10 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AVIABLE_COLORS, BASE_URL } from '../utils/constants';
-import axios from 'axios';
-import { RootState } from './store';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { child, get, getDatabase, push, ref, remove, update } from 'firebase/database';
+import { AVIABLE_COLORS } from '../utils/constants';
+import { query } from 'firebase/database';
 
-
-export type Status = 'pending' | 'fulfilled' | 'rejected';
 export interface INote {
-    themeId: number,
-    id: number,
+    id: string,
     title: string,
     aviableColors: Array<string>,
     activeColor: string,
@@ -24,80 +21,92 @@ const initialState: INoteState = {
     isLoading: true
 };
 
-export const deleteNote = createAsyncThunk(
-    "deleteNote",
-    async (id: number, thunkAPI) => {
-        try {
-            const res = await axios.delete(`${BASE_URL}/notes/${id}`);
-            return res.data;
-        } catch (error) {
-            return thunkAPI.rejectWithValue(error);
-        }
+
+export const getNotes = createAsyncThunk(
+    'notes/getNotes',
+
+    async ({ uid, themeID }: { uid: string, themeID: string }) => {
+        const db = getDatabase();
+        const dbRef = query(ref(db, `user-notes/${uid}/${themeID}`));
+        const result = await get(dbRef).then((snapshot: { val: () => { [s: string]: INote; }, exists: () => boolean }) => {
+            if (snapshot.exists()) {
+                return Object.values(snapshot.val());
+            }
+        }).catch((error) => {
+            console.error(error);
+        });
+        return result ?? [];
     }
 );
 
+export const addNote = createAsyncThunk(
+    'notes/addNote',
 
+    async ({ uid, themeID }: { uid: string, themeID: string }) => {
+        const db = getDatabase();
+        const id = push(child(ref(db), `user-notes/${uid}/${themeID}`)).key ?? '';
+        const newNote = {
+            id,
+            title: '',
+            aviableColors: AVIABLE_COLORS,
+            activeColor: AVIABLE_COLORS[0],
+            textHTML: ''
+        }
+        const updates = { [`user-notes/${uid}/${themeID}/${id}`]: newNote };
+
+        await update(ref(db), updates);
+        return newNote;
+    }
+);
 
 export const changeNote = createAsyncThunk(
-    "changeNote",
-    async (note: INote, thunkAPI) => {
-        try {
-            const res = await axios.put(`${BASE_URL}/notes/${note.id}`, note);
-            return res.data;
-        } catch (error) {
-            return thunkAPI.rejectWithValue(error);
-        }
+    'notes/changeNote',
+
+    async ({ uid, themeID, newNote }: { uid: string, themeID:string, newNote: INote }) => {
+        const db = getDatabase();
+        const updates = { [`user-notes/${uid}/${themeID}/${newNote.id}`]: newNote };
+        await update(ref(db), updates);
+        return newNote;
+    }
+);
+
+export const deleteNote = createAsyncThunk(
+    'notes/deleteNote',
+
+    async ({ uid, themeID, noteID }: { uid: string, themeID:string, noteID: string }) => {
+        const db = getDatabase();
+        const dbRef = ref(db, `user-notes/${uid}/${themeID}/${noteID}`);
+        await remove(dbRef);
+        return noteID;
     }
 );
 
 
-export const addNote = createAsyncThunk<INote, number, { state: RootState } >(
-    "addNote",
-    async (themeId: number, thunkAPI) => {
-        try {
-            const newNote = {
-                themeId: themeId,
-                title: "",
-                aviableColors: AVIABLE_COLORS,
-                activeColor: AVIABLE_COLORS[0],
-                textHTML: ""
-            };
-            const res = await axios.post(`${BASE_URL}/notes/`, newNote);
-            return res.data;
-        } catch (error) {
-            return thunkAPI.rejectWithValue(error);
-        }
-    }
-);
 
 const notesSlice = createSlice({
     name: 'notes',
     initialState,
-    reducers: {
-        getNotes(state, { payload }) {
-            state.list = payload ?? [];
-            state.isLoading = false;
-        },
-        filterNotes(state, { payload }) {
-            state.list = state.list.filter(note => note.themeId === payload);
-        },
-    },
-    extraReducers: (builder) => {
-        builder.addCase(changeNote.fulfilled, (state: INoteState, action: PayloadAction<INote>) => {
-            const currentNote = state.list.find((Note: INote) => Note.id === action.payload.id);
-            if (currentNote !== undefined)
-                currentNote.activeColor = action.payload.activeColor;
-        });
-        builder.addCase(addNote.fulfilled, (state: INoteState, action: PayloadAction<INote>) => {
-            state.list.push(action.payload);
-        });
-        builder.addCase(deleteNote.fulfilled, (state: INoteState, action: PayloadAction<number>) => {
-            const index = state.list.findIndex(theme => theme.id === action.payload);
-            state.list.splice(index, 1)
-        });
+    reducers: {},
+    extraReducers(builder) {
+        builder
+            .addCase(getNotes.fulfilled, (state, { payload }) => {
+                state.list = payload;
+                state.isLoading = false;
+            })
+            .addCase(addNote.fulfilled, (state, { payload }) => {
+                state.list.push(payload);
+            })
+            .addCase(changeNote.fulfilled, (state, { payload }) => {
+                const currentNote = state.list.find(note => note.id === payload.id);
+                if (currentNote)
+                    currentNote.activeColor = payload.activeColor;
+            })
+            .addCase(deleteNote.fulfilled, (state, { payload }) => {
+                const index = state.list.findIndex(note => note.id === payload);
+                state.list.splice(index, 1)
+            });
     },
 });
 
 
-export const { getNotes, filterNotes } = notesSlice.actions;
 export default notesSlice.reducer;

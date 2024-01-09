@@ -1,54 +1,53 @@
-import { FC, useState, ChangeEvent } from "react"
 import { Link } from "react-router-dom";
-import { useStoreDispatch } from "../redux/store";
+import { useSelector } from "react-redux";
+import { useState, ChangeEvent } from "react"
+import { RootState, useStoreDispatch } from "../redux/store";
 import { INote, changeNote, deleteNote } from "../redux/notes";
-import { changeTheme, deleteTheme } from "../redux/themes";
+import { ITheme, changeTheme, deleteTheme } from "../redux/themes";
+
 interface ICard {
-    id: number,
+    id: string,
     title: string,
     aviableColors: Array<string>,
     activeColor: string,
-    themeId?: number,
     textHTML?: string,
 }
-type cardType = 'note' | 'theme';
 interface ICardProps {
-    type: cardType,
     card: ICard,
-    to: string
+    themeID?: string
 }
 
-const Card: FC<ICardProps> = ({ card, type, to }) => {
-    const dispatch = useStoreDispatch();
+const Card = ({ card, themeID = card.id }: ICardProps) => {
     const [currentTitle, setCurrentTitle] = useState(card.title);
     const [activeColor, setActiveColor] = useState(card.activeColor);
     const [showEditor, setShowEditor] = useState(!currentTitle);
+    const { user: { uid } } = useSelector((state: RootState) => state.user);
     const changeCurrentTitle = (e: ChangeEvent<HTMLInputElement>) => setCurrentTitle(e.target.value);
-    const isNote = type === 'note';
+    const dispatch = useStoreDispatch();
+    const isNote = themeID !== card.id;
 
-    const editorClose = () => {
+    const changeCard = () => {
         if (isNote) {
             const newNote: INote = {
                 ...card,
-                themeId: card.themeId ?? -1,
                 textHTML: card.textHTML ?? '',
                 title: currentTitle,
                 activeColor: activeColor
             };
-            dispatch(changeNote(newNote));
+            dispatch(changeNote({ uid, themeID, newNote }));
         } else {
-            const newTheme = {
+            const newTheme: ITheme = {
                 ...card,
                 title: currentTitle,
                 activeColor: activeColor
             }
-            dispatch(changeTheme(newTheme))
+            dispatch(changeTheme({ uid, newTheme }));
         }
 
         setShowEditor(false)
     }
 
-    const deleteCard = () => isNote ? dispatch(deleteNote(card.id)) : dispatch(deleteTheme(card.id));
+    const deleteCard = () => isNote ? dispatch(deleteNote({ uid, themeID, noteID: card.id })) : dispatch(deleteTheme({ uid, themeID}));
 
 
 
@@ -75,12 +74,12 @@ const Card: FC<ICardProps> = ({ card, type, to }) => {
                                 <h4 className='font-semibold'>Название:</h4>
                                 <input value={currentTitle} onChange={changeCurrentTitle} className={`peer m-0 block h-[30px] w-full rounded border border-solid border-neutral-300 bg-opacity-40 bg-black placeholder:text-transparent focus:border-primary focus:outline-none peer-focus:text-primary dark:focus:border-primary dark:peer-focus:text-primary px-1 ${currentTitle === '' ? 'border-red-600 color-red-300' : ''}`} type="text" />
                             </div>
-                            <button className='btn ml-auto inline-block bg-green-950' onClick={editorClose}>Готово</button>
+                            <button className='btn ml-auto inline-block bg-green-950' onClick={changeCard}>Готово</button>
                         </div>
                     </div>
                     :
                     <>
-                        <Link to={to} className="peer flex w-full items-center h-full justify-center">
+                        <Link to={isNote ? `/note/${themeID}/${card.id}` : `/theme/${themeID}`} className="peer flex w-full items-center h-full justify-center">
                             <h3 className="font-mono text-xl xl:text-2xl font-bold inline-block">{currentTitle}</h3>
                         </Link>
                         <div className="absolute z-10 top-3 right-3 flex items-center pointer-events-none opacity-0 peer-hover:pointer-events-auto peer-hover:opacity-100 transition-all hover:pointer-events-auto hover:opacity-100">
