@@ -25,6 +25,7 @@ const Card = ({ card, themeID = card.id }: ICardProps) => {
     const changeCurrentTitle = (e: ChangeEvent<HTMLInputElement>) => setCurrentTitle(e.target.value);
     const dispatch = useStoreDispatch();
     const isNote = themeID !== card.id;
+    console.log(!currentTitle)
 
     const changeCard = () => {
         if (isNote) {
@@ -54,17 +55,14 @@ const Card = ({ card, themeID = card.id }: ICardProps) => {
     return (
         <div className={`hover:text-inherit text-inherit w-full md:w-[calc(100%/2-1rem)] xl:w-[25rem] rounded-2xl text-center ring-1 ring-inset px-3 py-3 h-44 md:h-52 relative ${activeColor}`}>
             {
-                showEditor ?
+                showEditor ? 
                     <div className="flex justify-between">
                         <div>
                             <h4 className='font-semibold'>Выберите цвет:</h4>
                             <ul className='grid grid-cols-4 w-24 h-24 gap-1 cursor-pointer'>
                                 {
-                                    card.aviableColors.map((color: string, index: number) => (
-                                        <li key={index}
-                                            className={`${color} ${color === card.activeColor ? 'border-green-800' : ''} border-solid border border-white`}
-                                            onClick={() => (setActiveColor(color))}
-                                        ></li>
+                                    card.aviableColors && card.aviableColors.map((color: string, i) => (
+                                        <li className={`${color} ${color === card.activeColor ? 'border-green-800' : ''} border-solid border border-white`} onClick={() => (setActiveColor(color))} key={i}></li>
                                     ))
                                 }
                             </ul>

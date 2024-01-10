@@ -3,7 +3,7 @@ import { INote } from './notes';
 import { get, getDatabase, ref, update } from 'firebase/database';
 
 const initialState: INote = {
-    id: '0',
+    id: '00',
     title: '',
     aviableColors: [],
     activeColor: '',
@@ -15,6 +15,7 @@ export const getNote = createAsyncThunk(
 
     async ({ uid, themeID, noteID }: { uid: string, themeID:string, noteID: string }) => {
         const db = getDatabase();
+        console.log(`user-notes/${uid}/${themeID}/${noteID}`)
         const dbRef = ref(db, `user-notes/${uid}/${themeID}/${noteID}`);
 
         const result = await get(dbRef).then((snapshot) => {

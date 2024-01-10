@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { useEffect } from "react";
 
 import RoundCard from "./RoundCard";
-import Card from "./Card"
+import Card from "./Card";
 
 const ThemesList = () => {
     const dispatch = useStoreDispatch();

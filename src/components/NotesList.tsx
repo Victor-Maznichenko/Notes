@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux"
 import { useParams } from "react-router-dom";
-import { INote, addNote, getNotes } from "../redux/notes";
+import { addNote, getNotes } from "../redux/notes";
 import { RootState, useStoreDispatch } from "../redux/store";
 
 import Card from "./Card";
@@ -13,6 +13,7 @@ const NotesList = () => {
     const notes = useSelector((state: RootState) => state.notes);
     const { user: {uid} } = useSelector((state: RootState) => state.user);
     const createNewNote = () => dispatch(addNote({ uid, themeID }));
+    console.log(notes);
 
     useEffect(() => {
         dispatch(getNotes({ uid, themeID }))
@@ -26,7 +27,7 @@ const NotesList = () => {
                     notes.isLoading ?
                         'СКИЛЕТОН'
                         :
-                        notes.list.map((note: INote, i) => (
+                        notes.list.map((note, i) => (
                             <Card card={note} themeID={themeID} key={i} />
                         ))
                 }
