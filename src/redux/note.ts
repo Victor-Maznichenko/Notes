@@ -1,44 +1,45 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { INote } from './notes';
-import { get, getDatabase, ref, update } from 'firebase/database';
+import { doc, getDoc, setDoc } from 'firebase/firestore/lite';
+import { db } from '../firebase';
 
-const initialState: INote = {
-    id: '00',
-    title: '',
-    aviableColors: [],
-    activeColor: '',
-    textHTML: '',
+interface INoteState {
+    note: INote,
+    isLoading: boolean,
+    isSuccess: boolean
+}
+
+const initialState: INoteState = {
+    note: {
+        id: '',
+        title: '',
+        aviableColors: [],
+        activeColor: '',
+        textHTML: '',
+        themeID: '',
+    },
+    isLoading: true,
+    isSuccess: false
+
 };
 
 export const getNote = createAsyncThunk(
     'note/getNote',
 
-    async ({ uid, themeID, noteID }: { uid: string, themeID:string, noteID: string }) => {
-        const db = getDatabase();
-        console.log(`user-notes/${uid}/${themeID}/${noteID}`)
-        const dbRef = ref(db, `user-notes/${uid}/${themeID}/${noteID}`);
-
-        const result = await get(dbRef).then((snapshot) => {
-            if (snapshot.exists()) {
-                return snapshot.val();
-            }
-        }).catch((error) => {
-            console.error(error);
-        });
-
-        return result;
-
+    async ({ uid, themeID, noteID }: { uid: string, themeID: string, noteID: string }) => {
+        const noteRef = doc(db, "notes", uid, themeID, noteID);
+        const note = await getDoc(noteRef);
+        return <INote>note.data();
     }
 );
 
 export const changeNote = createAsyncThunk(
     'note/changeNote',
 
-    async ({ uid, themeID, newNote }: { uid: string, themeID:string, newNote: INote }) => {
-        const db = getDatabase();
-        const updates = { [`user-notes/${uid}/${themeID}/${newNote.id}`]: newNote };
-        await update(ref(db), updates);
-        return newNote;
+    async ({ uid, themeID, newNote }: { uid: string, themeID: string, newNote: INote }) => {
+        const noteRef = doc(db, 'notes', uid, themeID, newNote.id);
+        await setDoc(noteRef, newNote);
+        return newNote.textHTML;
     }
 );
 
@@ -48,14 +49,15 @@ const noteSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-        .addCase(getNote.fulfilled, (state, { payload }) => {
-            payload && Object.assign(state, payload);
-        })
-        .addCase(changeNote.fulfilled, (state, { payload }) => {
-            state.textHTML = payload.textHTML;
-        });
-    },
-
+            .addCase(getNote.fulfilled, (state, { payload }) => {
+                state.note = payload;
+                state.isLoading = false;
+                state.isSuccess = true;
+            })
+            .addCase(changeNote.fulfilled, (state, { payload }) => {
+                state.textHTML = payload;
+            });
+    }
 });
 
 

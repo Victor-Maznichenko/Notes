@@ -1,15 +1,14 @@
-import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { useAppSelector } from "../utils/hooks";
 
 const Profile = () => {
-   const { user } = useSelector((state: RootState) => state.user);
+   const { uid, photoURL, displayName } = useAppSelector(state => state.user);
    return (
       <>
          {
-            user.uid &&
+            uid &&
             <div className="fixed top-2 right-5 flex items-center">
-               <img src={user.photoURL} className="w-12 h-12 p-1 mr-1 rounded-full" alt="Avatar" />
-               <span className="font-medium max-w-[15rem] overflow-hidden text-ellipsis whitespace-nowrap">{user.displayName}</span>
+               <img src={photoURL} className="w-12 h-12 p-1 mr-1 rounded-full" alt="Avatar" />
+               <span className="font-medium max-w-[15rem] overflow-hidden text-ellipsis whitespace-nowrap">{displayName}</span>
             </div>
          }
       </>

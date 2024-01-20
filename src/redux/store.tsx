@@ -1,5 +1,4 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { useDispatch } from "react-redux";
 import themes from './themes'
 import notes from './notes'
 import note from './note'
@@ -17,5 +16,5 @@ export const store = configureStore({
 });
 
 
-export const useStoreDispatch = () => useDispatch<typeof store.dispatch>()
 export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

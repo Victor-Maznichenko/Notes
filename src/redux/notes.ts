@@ -1,10 +1,11 @@
+import { addDoc, collection, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore/lite';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { child, get, getDatabase, push, ref, remove, update } from 'firebase/database';
 import { AVIABLE_COLORS } from '../utils/constants';
-import { query } from 'firebase/database';
+import { db } from '../firebase';
 
 export interface INote {
     id: string,
+    themeID: string,
     title: string,
     aviableColors: Array<string>,
     activeColor: string,
@@ -26,16 +27,14 @@ export const getNotes = createAsyncThunk(
     'notes/getNotes',
 
     async ({ uid, themeID }: { uid: string, themeID: string }) => {
-        const db = getDatabase();
-        const dbRef = query(ref(db, `user-notes/${uid}/${themeID}`));
-        const result = await get(dbRef).then((snapshot: { val: () => { [s: string]: INote; }, exists: () => boolean }) => {
-            if (snapshot.exists()) {
-                return Object.values(snapshot.val());
-            }
-        }).catch((error) => {
-            console.error(error);
+        const notesRef = await getDocs(collection(db, "notes", uid, themeID));
+        const notesList: Array<INote> = [];
+
+        notesRef.forEach((noteRef) => {
+            notesList.push({ ...<INote>noteRef.data(), id: noteRef.id });
         });
-        return result ?? [];
+
+        return notesList;
     }
 );
 
@@ -43,29 +42,25 @@ export const addNote = createAsyncThunk(
     'notes/addNote',
 
     async ({ uid, themeID }: { uid: string, themeID: string }) => {
-        const db = getDatabase();
-        const id = push(child(ref(db), `user-notes/${uid}/${themeID}`)).key ?? '';
         const newNote = {
-            id,
             title: '',
+            themeID: themeID,
             aviableColors: AVIABLE_COLORS,
             activeColor: AVIABLE_COLORS[0],
             textHTML: ''
         }
-        const updates = { [`user-notes/${uid}/${themeID}/${id}`]: newNote };
-
-        await update(ref(db), updates);
-        return newNote;
+        const { id } = await addDoc(collection(db, "notes", uid, themeID), newNote);
+        await setDoc(doc(db, "notes", uid, themeID, id), { ...newNote, id });
+        return { ...newNote, id };
     }
 );
 
 export const changeNote = createAsyncThunk(
     'notes/changeNote',
 
-    async ({ uid, themeID, newNote }: { uid: string, themeID:string, newNote: INote }) => {
-        const db = getDatabase();
-        const updates = { [`user-notes/${uid}/${themeID}/${newNote.id}`]: newNote };
-        await update(ref(db), updates);
+    async ({ uid, themeID, newNote }: { uid: string, themeID: string, newNote: INote }) => {
+        const noteRef = doc(db, `notes`, uid, themeID, newNote.id);
+        await setDoc(noteRef, newNote);
         return newNote;
     }
 );
@@ -73,11 +68,10 @@ export const changeNote = createAsyncThunk(
 export const deleteNote = createAsyncThunk(
     'notes/deleteNote',
 
-    async ({ uid, themeID, noteID }: { uid: string, themeID:string, noteID: string }) => {
-        const db = getDatabase();
-        const dbRef = ref(db, `user-notes/${uid}/${themeID}/${noteID}`);
-        await remove(dbRef);
-        return noteID;
+    async ({ uid, themeID, id }: { uid: string, themeID: string, id: string }) => {
+        const noteRef = doc(db, `notes`, uid, themeID, id);
+        await deleteDoc(noteRef);
+        return id;
     }
 );
 

@@ -1,6 +1,9 @@
+import { addDoc, collection, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore/lite';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { child, get, getDatabase, push, ref, remove, update } from 'firebase/database';
 import { AVIABLE_COLORS } from '../utils/constants';
+import { db } from '../firebase';
+
+
 export interface ITheme {
     id: string,
     title: string,
@@ -22,17 +25,14 @@ export const getThemes = createAsyncThunk(
     'themes/getThemes',
 
     async (uid: string) => {
-        const db = getDatabase();
-        const dbRef = ref(db, `user-themes/${uid}`);
-        const result = await get(dbRef).then((snapshot: { val: () => { [s: string]: ITheme; }, exists: () => boolean }) => {
-            if (snapshot.exists()) {
-                return Object.values(snapshot.val());
-            }
-        }).catch((error) => {
-            console.error(error);
+        const themesRef = await getDocs(collection(db, "themes", uid, "list"));
+        const themesList: Array<ITheme> = [];
+
+        themesRef.forEach((themeRef) => {
+            themesList.push({ ...<ITheme>themeRef.data(), id: themeRef.id });
         });
 
-        return result ?? [];
+        return themesList;
     }
 );
 
@@ -40,18 +40,14 @@ export const addTheme = createAsyncThunk(
     'themes/addTheme',
 
     async (uid: string) => {
-        const db = getDatabase();
-        const id = push(child(ref(db), `user-themes/${uid}`)).key ?? '';
         const newTheme = {
-            id,
             title: '',
             aviableColors: AVIABLE_COLORS,
             activeColor: AVIABLE_COLORS[0]
         }
-        const updates = { [`user-themes/${uid}/${id}`]: newTheme };
-
-        await update(ref(db), updates);
-        return newTheme;
+        const { id } = await addDoc(collection(db, "themes", uid, "list"), newTheme);
+        await setDoc(doc(db, "themes", uid, "list", id), { ...newTheme, id });
+        return { ...newTheme, id };
     }
 );
 
@@ -59,10 +55,8 @@ export const changeTheme = createAsyncThunk(
     'themes/changeTheme',
 
     async ({ uid, newTheme }: { uid: string, newTheme: ITheme }) => {
-        const db = getDatabase();
-        const updates = { [`user-themes/${uid}/${newTheme.id}`]: newTheme };
-
-        await update(ref(db), updates);
+        const themeRef = doc(db, `themes`, uid, "list", newTheme.id);
+        await setDoc(themeRef, newTheme);
         return newTheme;
     }
 );
@@ -70,13 +64,10 @@ export const changeTheme = createAsyncThunk(
 export const deleteTheme = createAsyncThunk(
     'themes/deleteTheme',
 
-    async ({ uid, themeID }: { uid: string, themeID: string }) => {
-        const db = getDatabase();
-        const dbRefTheme = ref(db, `user-themes/${uid}/${themeID}`);
-        const dbRefNotes = ref(db, `user-notes/${uid}/${themeID}`);
-        await remove(dbRefTheme);
-        await remove(dbRefNotes);
-        return themeID;
+    async ({ uid, id }: { uid: string, id: string }) => {
+        const themeRef = doc(db, `themes`, uid, "list", id);
+        await deleteDoc(themeRef);
+        return id;
     }
 );
 
@@ -88,6 +79,7 @@ const themesSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(getThemes.fulfilled, (state, { payload }) => {
+                console.log(payload)
                 state.list = payload;
                 state.isLoading = false;
             })
@@ -100,8 +92,7 @@ const themesSlice = createSlice({
                     currentTheme.activeColor = payload.activeColor;
             })
             .addCase(deleteTheme.fulfilled, (state, { payload }) => {
-                const index = state.list.findIndex(theme => theme.id === payload);
-                state.list.splice(index, 1)
+                state.list = state.list.filter((theme) => theme.id !== payload);
             });
     },
 });
