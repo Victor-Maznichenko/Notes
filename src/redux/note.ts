@@ -55,7 +55,7 @@ const noteSlice = createSlice({
                 state.isSuccess = true;
             })
             .addCase(changeNote.fulfilled, (state, { payload }) => {
-                state.textHTML = payload;
+                state.note.textHTML = payload;
             });
     }
 });

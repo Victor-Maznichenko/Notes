@@ -43,6 +43,7 @@ const Card = ({ card, type, themeID = card.id }: ICardProps) => {
             case 'note': {
                 const newNote: INote = {
                     ...card,
+                    themeID,
                     textHTML: card.textHTML ?? '',
                     title: currentTitle,
                     activeColor: activeColor
