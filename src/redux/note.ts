@@ -5,8 +5,7 @@ import { db } from '../firebase';
 
 interface INoteState {
     note: INote,
-    isLoading: boolean,
-    isSuccess: boolean
+    isLoading: boolean
 }
 
 const initialState: INoteState = {
@@ -18,8 +17,7 @@ const initialState: INoteState = {
         textHTML: '',
         themeID: '',
     },
-    isLoading: true,
-    isSuccess: false
+    isLoading: true
 
 };
 
@@ -52,7 +50,6 @@ const noteSlice = createSlice({
             .addCase(getNote.fulfilled, (state, { payload }) => {
                 state.note = payload;
                 state.isLoading = false;
-                state.isSuccess = true;
             })
             .addCase(changeNote.fulfilled, (state, { payload }) => {
                 state.note.textHTML = payload;

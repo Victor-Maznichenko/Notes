@@ -18,7 +18,7 @@ const NotesList = () => {
 
     return (
         <>
-            <h1 className='font-mono font-black text-4xl pt-4 mb-11 xl:mb-36'>Мои конспекты:</h1>
+            <h1 className='font-mono font-black text-4xl pt-4 mb-11 xl:mb-36 text-center'>Заметки:</h1>
             <div className="flex flex-wrap items-center gap-5">
                 {
                     notes.list.map(note => (

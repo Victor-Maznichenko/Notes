@@ -18,7 +18,7 @@ const ThemesList = () => {
 
     return (
         <>
-            <h1 className='font-mono font-black text-4xl pt-4 mb-36'>Мои конспекты:</h1>
+            <h1 className='font-mono font-black text-4xl pt-4 mb-36 text-center'>Темы:</h1>
             <div className="flex flex-wrap items-center xl:gap-5 md:gap-[2rem] gap-4 max-xl:justify-between">
                 {
                     themes.list.map((theme: ITheme) => (
