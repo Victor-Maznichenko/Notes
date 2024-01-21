@@ -25,8 +25,16 @@ const Card = ({ card, type, themeID = card.id }: ICardProps) => {
     const dispatch = useAppDispatch();
 
     const changeCurrentTitle = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
+        console.log('Изменение INPUT')
+        console.log(value)
         setCurrentTitle(value);
     }
+
+    // if (type === 'theme') {
+    //     console.log('CARD')
+    //     console.log(card)
+    //     console.log(currentTitle)
+    // }
 
     const changeCard = () => {
         switch (type) {
@@ -36,7 +44,6 @@ const Card = ({ card, type, themeID = card.id }: ICardProps) => {
                     title: currentTitle,
                     activeColor: activeColor
                 }
-                console.log('Вызов')
                 dispatch(changeTheme({ uid, newTheme }));
                 break;
             }
@@ -54,7 +61,7 @@ const Card = ({ card, type, themeID = card.id }: ICardProps) => {
         }
         setShowEditor(false)
     }
-    
+
     const deleteCard = () => {
         switch (type) {
             case 'theme': {

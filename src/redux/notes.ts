@@ -92,8 +92,10 @@ const notesSlice = createSlice({
             })
             .addCase(changeNote.fulfilled, (state, { payload }) => {
                 const currentNote = state.list.find(note => note.id === payload.id);
-                if (currentNote)
+                if (currentNote) {
                     currentNote.activeColor = payload.activeColor;
+                    currentNote.title = payload.title;
+                }
             })
             .addCase(deleteNote.fulfilled, (state, { payload }) => {
                 const index = state.list.findIndex(note => note.id === payload);

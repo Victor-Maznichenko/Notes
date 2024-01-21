@@ -55,7 +55,7 @@ export const changeTheme = createAsyncThunk(
     'themes/changeTheme',
 
     async ({ uid, newTheme }: { uid: string, newTheme: ITheme }) => {
-        const themeRef = doc(db, `themes`, uid, "list", newTheme.id);
+        const themeRef = doc(db, 'themes', uid, "list", newTheme.id);
         await setDoc(themeRef, newTheme);
         return newTheme;
     }
@@ -65,7 +65,11 @@ export const deleteTheme = createAsyncThunk(
     'themes/deleteTheme',
 
     async ({ uid, id }: { uid: string, id: string }) => {
-        const themeRef = doc(db, `themes`, uid, "list", id);
+        const themeRef = doc(db, 'themes', uid, "list", id);
+        const notesDocsRef = await getDocs(collection(db, 'notes', uid, id));
+        notesDocsRef.forEach(async (note) => {
+            await deleteDoc(note.ref);
+        });
         await deleteDoc(themeRef);
         return id;
     }
@@ -79,7 +83,6 @@ const themesSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(getThemes.fulfilled, (state, { payload }) => {
-                console.log(payload)
                 state.list = payload;
                 state.isLoading = false;
             })
@@ -88,8 +91,11 @@ const themesSlice = createSlice({
             })
             .addCase(changeTheme.fulfilled, (state, { payload }) => {
                 const currentTheme = state.list.find(theme => theme.id === payload.id);
-                if (currentTheme)
+                if (currentTheme) {
                     currentTheme.activeColor = payload.activeColor;
+                    currentTheme.title = payload.title;
+                }
+
             })
             .addCase(deleteTheme.fulfilled, (state, { payload }) => {
                 state.list = state.list.filter((theme) => theme.id !== payload);
