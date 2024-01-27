@@ -10,7 +10,7 @@
 
 8. Добавить Github Actions
 
-9. NOTE сделать загрузку перед запросом. При unmounted уставновить isLoading:false 
+9. NOTE сделать загрузку перед запросом. Мб unmounted уставновить isLoading:false 
 
 10. Сделать поиск по темам и заметкам
 
