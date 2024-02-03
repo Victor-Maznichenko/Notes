@@ -1,4 +1,4 @@
-# Notes
+# 📓Notes
 When learning different tools, I needed to take notes. 
 
 So I created a note-taking application that I and my mates use on a daily basis.
